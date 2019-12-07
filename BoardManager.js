@@ -1,16 +1,75 @@
 class BoardManager {
-  constructor() {
+  constructor(gameType) {
+    const PLAYER1 = 0;
+    const PLAYER2 = 1;
+
     this.existingLines = new Map();
+    this.dots = [];
     this.Squares = [];
+    this.lineGuide == null;
+    this.dotSelected = -1;
+    this.Players = [];
+    this.currentPlayer = 0;
+
+    this.Players.push(new HumanPlayer(1));
+
+
+    if(gameType == 1) {
+      this.Players.push(new HumanPlayer(2))
+    } else {
+      this.Players.push(new HumanPlayer(2))
+    }
   }
 
-  createLine(x1, y1, x2, y2) {
+  createGrid(numberOfDots, dotRadius, dotSpacing) {
+    for(var i = 0; i <= numberOfDots; i++) {
+      for(var j = 0; j <= numberOfDots; j++) {
+        let x = canvasPadding + i * dotSpacing;
+        let y = canvasPadding + j * dotSpacing;
+        this.dots.push(new Dots(dotRadius, x, y, i , j));
+      }
+    }   
+  }
+
+  runGame() {
+    this.action();
+    this.draw();
+  }
+ 
+  action(){
+    this.Players[this.currentPlayer].inControl = true
+    this.Players[this.currentPlayer].update();
+    
+    for(var i = 0; i < this.dots.length; i++) {    
+      this.dots[i].update(this.Players[this.currentPlayer].sX, this.Players[this.currentPlayer].sY);
+
+      if(this.dots[i].mouseOver && pressedFlag) {
+        this.Players[this.currentPlayer].setDot(this.dots[i]);
+      }
+    }
+
+    this.Players[this.currentPlayer].action();
+
+    if(this.Players[this.currentPlayer].valideLine) {
+      this.createLine(Players[this.currentPlayer].lineCoordinates)
+      this.Players[this.currentPlayer].inControl = false;
+      if(this.currentPlayer == PLAYER1) {
+        this.currentPlayer = PLAYER2;
+      } else {
+        this.currentPlayer = PLAYER1;
+      }
+    }
+
+  }
+
+  createLine([x1, y1, x2, y2]) {
     let lineKey = this.keyMaker(x1, y1, x2, y2);
 
     if (this.existingLines.has(lineKey)) {
-      return -1;
+      return false;
     } else {
       this.existingLines.set(lineKey, new Line(x1, y1, x2, y2, false));
+      return true;
     }
   }
 
@@ -83,10 +142,17 @@ class BoardManager {
   }
 
   draw() {
-    var lineArray = Array.from(this.existingLines.values());
 
-    for (var i = 0; i < lineArray.length; i++) {
-      lineArray[i].draw();
+    var existingLines = Array.from(this.existingLines.values());
+
+    this.Players[this.currentPlayer].draw();
+
+    for(var i = 0; i < this.dots.length; i++) {
+      this.dots[i].draw();
+    }
+
+    for (var i = 0; i < existingLines.length; i++) {
+      existingLines[i].draw();
     }
 
     for (var i = 0; i < this.Squares.length; i++) {

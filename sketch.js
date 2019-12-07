@@ -1,10 +1,15 @@
 //General Properties
 let canvas;
 let canvasSize = 1000;
-let canvasPadding = 80;
+let canvasPadding = 200;
 let gridSize = canvasSize - 2 * canvasPadding;
 let sLength = 80;
 
+const VSPLAYER = 1;
+const VSCPU = 2;
+
+let Game;
+let gameType = VSPLAYER;
 //Mouse Triggers
 let pressedFlag = false;
 let releasedFlag = false;
@@ -12,19 +17,19 @@ let releasedFlag = false;
 //Circle Properties
 let circles = [];
 let gameState = 0;
-let cRadius = 10;
+let dotRadius = 10;
 let cNum = Math.round((canvasSize - 2 * canvasPadding) / sLength);
 let minLimit = canvasPadding;
 let maxLimit = canvasPadding + sLength * (cNum - 1);
-let Game;
 
 //Line Properties
-let guideLine;
+let lineGuide;
+let firstSelection, secondSelection;
 let x1Index = 0;
 let y1Index = 0;
 
 //Player
-playerTurn = 1;
+let Players = [];
 
 function setup() {
 
@@ -33,14 +38,16 @@ function setup() {
   canvas.parent('canvas');
   
   background(0);  
-  Game = new BoardManager();
+  Game = new BoardManager(1);
+  Game.createGrid(cNum, dotRadius, sLength);
+  /*
   for(var i = 0; i <= cNum; i++) {
     let cRow = [];
     for(var j = 0; j <= cNum; j++) {
       cRow.push(new Circle(cRadius, canvasPadding + i * sLength, canvasPadding + j * sLength, i , j))
     }
     circles.push(cRow);
-  }
+  }*/
   
 }
 
@@ -57,12 +64,10 @@ function windowResized() {
 function draw() {
   background(0);
 
-  playerSelection();
-
-  Game.draw();
-  
-  if (guideLine != null){
-     guideLine.execute();
+  Game.runGame();
+  /*
+  if (lineGuide != null){
+     lineGuide.execute();
   }
   
   //Game Action
@@ -72,9 +77,10 @@ function draw() {
     for(var j = 0; j < cNum; j++) {
       circles[i][j].update();
 
-      if(circles[i][j].isSelected()) {
+      if(Players[inControl].mousePressed && circles[i][j].mouseOver) {
         if(gameState == 0) {
-            guideLine = new Line(circles[i][j].posX, circles[i][j].posY, 0, 0, true);
+            lineGuide = new Line(circles[i][j].posX, circles[i][j].posY, 0, 0, true);
+            firstSelection = circles[i][j];
             x1Index = i;
             y1Index = j;
             gameState = 1;
@@ -85,23 +91,24 @@ function draw() {
             let firstCircleY = circles[x1Index][y1Index].posY;
             let secondCircleX = circles[i][j].posX;
             let secondCircleY = circles[i][j].posY;
+            secondSelection = circles[i][j];
 
-            Game.createLine(firstCircleX, firstCircleY, secondCircleX, secondCircleY);
-            numOfSquareCreated = Game.checkSquareAround(firstCircleX, firstCircleY, secondCircleX, secondCircleY);
+            Game.createLine(firstSelection.posX, firstSelection.posY, secondSelection.posX, secondSelection.posY);
+            numOfSquareCreated = Game.checkSquareAround(firstSelection.posX, firstSelection.posY, secondSelection.posX, secondSelection.posY);
           }
-          guideLine = null;
+          lineGuide = null;
           gameState = 0;
         }
         }
         circles[i][j].draw();     
       } 
-    }
-/*
+    }*/
+
   fill(255);
-  textSize(12);
+  textSize(10);
   stroke(0)
   textAlign(LEFT, CENTER);
-  text("Mouse: (" + mouseX +"," + mouseY + ")", 0, 30);*/
+  text("Mouse: (" + mouseX +"," + mouseY + ")", 0, 80);
 
 }
 

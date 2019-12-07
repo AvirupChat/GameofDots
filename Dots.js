@@ -1,6 +1,6 @@
-class Circle {
+class Dots {
 
-    constructor(r, x, y, pCol, pRow) {
+    constructor(r, x, y, i, j) {
       //Shape Properties
       this.radius = r;
       this.posX = x;
@@ -13,56 +13,37 @@ class Circle {
       this.selectionLatch = false;
 
       //Number of possible connections
-      if((pRow == 0 && pCol == 0) || (pRow == cNum - 1 && pCol == 0) ||(pRow == 0 && pCol == cNum - 1)  || (pRow == cNum - 1 && pCol == cNum - 1)) {  
+      if((j == 0 && i == 0) || (j == cNum - 1 && i == 0) ||(j == 0 && i == cNum - 1)  || (j == cNum - 1 && i == cNum - 1)) {  
         this.possibleConnections = 2;  
-      } else if(pRow == 0 || pCol == 0 || pRow == cNum - 1 || pCol == cNum - 1) {
+      } else if(j == 0 || i == 0 || j == cNum - 1 || i == cNum - 1) {
         this.possibleConnections = 3; 
       } else {
         this.possibleConnections = 4;
       }
   
-      this.pRow = pRow;
-      this.pCol = pCol;
+      this.i = i;
+      this.j = j;
     }
     
-    update() {
+    update(playerMousePosX, playerMousePosY) {
       //Mouse is over this circle
-      this.mouseOver = (mouseX > this.posX - this.radius && mouseX < this.posX + this.radius) && 
-      (mouseY > this.posY - this.radius  && mouseY < this.posY + this.radius );
-      
-      //Mouse is pressed on this circle
-      this.cMousePressed = this.mouseOver && pressedFlag;
-      
-      //Circle has been clicked
-
-      if(this.cMousePressed) {
-        this.selectionLatch = true
-      } else if (this.selectionLatch && releasedFlag) {
-        this.cSelected = true;
-        this.selectionLatch = false;
-      } else {
-        this.cSelected = false;
-      } 
+      this.mouseOver = (playerMousePosX > this.posX - this.radius && playerMousePosX < this.posX + this.radius) && 
+      (playerMousePosY > this.posY - this.radius  && playerMousePosY < this.posY + this.radius );      
     }
     
-    isSelected() {
-      return this.cSelected;
-    }
-
     getPosition() {
       return [this.posX, this.posY];
     }
 
     validateConnection(jCol, iRow) {
-      let validX = iRow - this.pRow;
-      let validY = jCol - this.pCol;
+      let validX = iRow - this.i;
+      let validY = jCol - this.j;
 
       //console.log(validX + "," + validY);
       //console.log(abs(validX) + "," + abs(validY));
 
       let validitity = (abs(validX) == 1 && abs(validY) == 0) || (abs(validX) == 0 && abs(validY) == 1);
       return validitity;
-
     }
 
     draw() {
@@ -75,8 +56,8 @@ class Circle {
         stroke(0)
         textAlign(LEFT, CENTER);
         text("Connections: " + this.possibleConnections, 0, 50);
-        text("Row: " + this.pRow, 0, 70);
-        text("Col: " + this.pCol, 0, 90);
+        text("Row: " + this.i, 0, 70);
+        text("Col: " + this.j, 0, 90);
         text("Latch: " + this.selectionLatch, 0, 110);
         text("Selected: " + this.cSelected, 0, 130);
         text("Global Press: " + pressedFlag, 500, 10);
